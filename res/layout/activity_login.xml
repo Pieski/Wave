@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.percentlayout.widget.PercentFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".LoginActivity">
+
+    <ImageView
+        android:id="@+id/login_logo"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@mipmap/ic_launcher_foreground"
+        app:layout_marginBottomPercent="70%"
+        app:layout_marginLeftPercent="30%"
+        app:layout_marginRightPercent="30%"
+        app:layout_marginTopPercent="10%" />
+
+    <EditText
+        android:id="@+id/login_username"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:hint="@string/username_hint"
+        android:inputType="text"
+        app:layout_marginBottomPercent="63%"
+        app:layout_marginLeftPercent="15%"
+        app:layout_marginRightPercent="15%"
+        app:layout_marginTopPercent="30%" />
+
+    <EditText
+        android:id="@+id/login_password"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:hint="@string/password_hint"
+        android:inputType="textPassword"
+        app:layout_marginBottomPercent="57%"
+        app:layout_marginLeftPercent="15%"
+        app:layout_marginRightPercent="15%"
+        app:layout_marginTopPercent="37%" />
+
+    <Button
+        android:id="@+id/login_confirm_button"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorBlue"
+        android:backgroundTint="@drawable/blue_button_color"
+        android:text="@string/login"
+        android:textColor="@color/colorWhite"
+        app:layout_marginBottomPercent="49%"
+        app:layout_marginLeftPercent="20%"
+        app:layout_marginRightPercent="52%"
+        app:layout_marginTopPercent="47%" />
+
+    <Button
+        android:id="@+id/regist_button"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorMidShallowGrey"
+        android:text="@string/regist"
+        android:textColor="@color/colorBlack"
+        app:layout_marginBottomPercent="49%"
+        app:layout_marginLeftPercent="52%"
+        app:layout_marginRightPercent="20%"
+        app:layout_marginTopPercent="47%" />
+
+    <CheckBox
+        android:id="@+id/login_save_password"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        app:layout_marginLeftPercent="20%"
+        app:layout_marginTopPercent="52%"
+        android:text="@string/save_password"/>
+
+    <TextView
+        android:id="@+id/offline_declare"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:text="@string/offline_declare"
+        android:visibility="invisible"
+        app:layout_marginBottomPercent="35%"
+        app:layout_marginLeftPercent="10%"
+        app:layout_marginRightPercent="10%"
+        app:layout_marginTopPercent="60%" />
+
+    <Button
+        android:id="@+id/offline_activity_button"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorMidShallowGrey"
+        android:enabled="false"
+        android:text="@string/offline_activity"
+        android:textColor="@color/colorBlack"
+        android:textSize="20sp"
+        android:visibility="invisible"
+        app:layout_marginBottomPercent="25%"
+        app:layout_marginLeftPercent="35%"
+        app:layout_marginRightPercent="35%"
+        app:layout_marginTopPercent="65%" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/grad"
+        app:layout_marginBottomPercent="5%"
+        app:layout_marginLeftPercent="40%"
+        app:layout_marginRightPercent="40%"
+        app:layout_marginTopPercent="86%" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:text="@string/app_info"
+        app:layout_marginBottomPercent="2%"
+        app:layout_marginLeftPercent="20%"
+        app:layout_marginRightPercent="20%"
+        app:layout_marginTopPercent="95%" />
+
+</androidx.percentlayout.widget.PercentFrameLayout>

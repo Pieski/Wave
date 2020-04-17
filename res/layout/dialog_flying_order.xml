@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="330dp"
+    android:background="@drawable/dialog_round">
+
+    <EditText
+        android:id="@+id/flying_word"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="30dp"
+        android:layout_marginBottom="130dp"
+        android:background="@drawable/dialog_round"
+        android:backgroundTint="@color/colorShallowGrey"
+        android:gravity="center"
+        android:hint="@string/flying_order_word_hint"
+        android:textSize="35sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.49" />
+
+    <Button
+        android:id="@+id/flying_cancel"
+        android:layout_width="150dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginBottom="40dp"
+        app:layout_constraintBottom_toTopOf="@id/flying_dialog_radio_group"
+        app:layout_constraintTop_toBottomOf="@id/flying_word"
+        app:layout_constraintStart_toStartOf="@id/flying_word"
+        android:backgroundTint="@color/colorShallowGrey"
+        android:background="@drawable/button_round_corner"
+        android:textSize="18sp"
+        android:text="@string/cancel"/>
+
+    <Button
+        android:id="@+id/flying_confirm"
+        android:layout_width="150dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="40dp"
+        app:layout_constraintEnd_toEndOf="@id/flying_word"
+        app:layout_constraintTop_toBottomOf="@id/flying_word"
+        app:layout_constraintBottom_toTopOf="@id/flying_dialog_radio_group"
+        android:backgroundTint="@drawable/blue_button_color"
+        android:background="@drawable/button_round_corner"
+        android:textColor="@color/colorWhite"
+        android:textSize="18sp"
+        android:text="@string/confirm"/>
+
+    <RadioGroup
+        android:id="@+id/flying_dialog_radio_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="30dp"
+        android:layout_marginBottom="15dp"
+        android:orientation="vertical">
+
+        <RadioButton
+            android:id="@+id/flying_type_short"
+            android:text="@string/flying_order_type_short"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <RadioButton
+            android:id="@+id/flying_type_long"
+            android:text="@string/flying_order_type_long"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    </RadioGroup>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

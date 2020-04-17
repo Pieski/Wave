@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF">
+
+        <androidx.percentlayout.widget.PercentFrameLayout
+            android:id="@+id/top_view"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:layout_marginLeftPercent="1%"
+                    app:layout_marginTopPercent="1%"
+                    app:layout_marginBottomPercent="5%"
+                    app:layout_marginRightPercent="80%"
+                    android:src="@mipmap/ic_launcher_foreground"/>
+
+                <Button
+                    android:id="@+id/new_article_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:layout_marginLeftPercent="86%"
+                    app:layout_marginTopPercent="15%"
+                    app:layout_marginBottomPercent="15%"
+                    app:layout_marginRightPercent="5%"
+                    android:textSize="20sp"
+                    android:textColor="@color/colorWhite"
+                    android:text="@string/create_button"
+                    android:background="@drawable/shadow_button"/>
+
+        </androidx.percentlayout.widget.PercentFrameLayout>
+
+        <View
+            android:id="@+id/top_view_divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            app:layout_constraintTop_toBottomOf="@id/top_view"
+            android:background="@color/colorDivider" />
+
+        <androidx.viewpager.widget.ViewPager
+            android:id="@+id/page_view"
+            android:layout_gravity="top"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toBottomOf="@+id/top_view_divider"
+            app:layout_constraintBottom_toTopOf="@+id/navi_view"/>
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/navi_view"
+            android:layout_gravity="bottom"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:menu="@menu/navigation_menu"
+            app:itemIconTint="@drawable/navigation_icon_tint"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

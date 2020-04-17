@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/selected_block_item"
+        android:title="@string/selected_block_name"
+        android:icon="@drawable/ic_navigation_selected"/>
+    <item
+        android:id="@+id/works_block_item"
+        android:title="@string/works_block_name"
+        android:icon="@drawable/ic_navigation_works"/>
+    <item
+        android:id="@+id/discover_block_item"
+        android:title="@string/discovery_block_name"
+        android:icon="@drawable/ic_navigation_discovery"/>
+</menu>

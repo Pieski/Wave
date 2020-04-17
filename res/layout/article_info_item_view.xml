@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.percentlayout.widget.PercentFrameLayout
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="100dp"
+    android:layout_width="match_parent">
+    <View
+        android:id="@+id/item_background_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/articleinfo_item_background">
+    </View>
+
+    <View
+        android:id="@+id/item_decoration"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_marginLeftPercent="85%"
+        app:layout_marginRightPercent="0%"
+        app:layout_marginTopPercent="50%"
+        android:background="@drawable/articleinfo_item_decoration">
+    </View>
+
+    <TextView
+        android:id="@+id/item_title_view"
+        android:text="我是标题"
+        android:textSize="28sp"
+        android:gravity="center_vertical"
+        app:layout_marginLeftPercent="6%"
+        app:layout_marginRightPercent="30%"
+        app:layout_marginTopPercent="10%"
+        app:layout_marginBottomPercent="20%"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <TextView
+        android:text="中国现代诗"
+        android:id="@+id/item_type_view"
+        android:gravity="center_vertical"
+        android:textSize="13sp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_marginLeftPercent="10%"
+        app:layout_marginRightPercent="30%"
+        app:layout_marginTopPercent="70%"
+        app:layout_marginBottomPercent="10%"/>
+
+    <View
+        android:id="@+id/split_line"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:background="@color/colorDivider"
+        app:layout_marginBottomPercent="10%"
+        app:layout_marginLeftPercent="70%"
+        app:layout_marginRightPercent="29.5%"
+        app:layout_marginTopPercent="10%" />
+
+    <LinearLayout
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:gravity="top"
+        app:layout_marginLeftPercent="73%"
+        app:layout_marginRightPercent="5%"
+        app:layout_marginTopPercent="10%"
+        app:layout_marginBottomPercent="10%">
+
+        <TextView
+            android:id="@+id/item_author_view"
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:text="作者"/>
+
+        <TextView
+            android:id="@+id/item_created_time_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="创作时间"/>
+
+    </LinearLayout>
+
+</androidx.percentlayout.widget.PercentFrameLayout>

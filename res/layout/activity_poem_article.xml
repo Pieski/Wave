@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:background="@drawable/articleinfo_item_decoration"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <ScrollView
+
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/poem_main"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:context=".PoemArticleActivity">
+
+                <Button
+                    android:id="@+id/poem_make_comment"
+                    android:layout_width="40dp"
+                    android:layout_height="45dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:layout_marginEnd="30dp"
+                    android:layout_marginTop="30dp"
+                    android:textSize="17sp"
+                    android:text="@string/make_comment"/>
+
+                <Button
+                    android:id="@+id/poem_delete"
+                    android:layout_width="40dp"
+                    android:layout_height="45dp"
+                    app:layout_constraintEnd_toStartOf="@id/poem_make_comment"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginTop="30dp"
+                    android:textSize="17sp"
+                    android:text="@string/delete"
+                    android:enabled="false"
+                    android:visibility="invisible"/>
+
+                <TextView
+                    android:id="@+id/poem_title"
+                    android:layout_width="300dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="60dp"
+                    android:layout_marginTop="72dp"
+                    android:layout_marginEnd="60dp"
+                    android:gravity="bottom"
+                    android:textSize="30sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/poem_author"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="5dp"
+                    android:gravity="top"
+                    app:layout_constraintStart_toStartOf="@id/poem_title"
+                    app:layout_constraintTop_toBottomOf="@id/poem_title_divider" />
+
+                <View
+                    android:id="@+id/poem_title_divider"
+                    android:layout_width="0dp"
+                    android:layout_height="2dp"
+                    android:layout_marginStart="30dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="100dp"
+                    android:background="@color/colorDivider"
+                    app:layout_constraintEnd_toEndOf="@id/poem_info"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/poem_title"
+                    app:layout_marginLeftPercent="6%" />
+
+                <TextView
+                    android:id="@+id/poem_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="28dp"
+                    android:gravity="center"
+                    android:lineSpacingExtra="8dp"
+                    android:textSize="20sp"
+                    android:text="@string/loading_hint"
+                    app:layout_constraintTop_toBottomOf="@+id/poem_title_divider"
+                    tools:layout_editor_absoluteX="0dp" />
+
+                <View
+                    android:id="@+id/poem_content_divider"
+                    android:layout_width="0dp"
+                    android:layout_height="2dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="30dp"
+                    android:layout_marginEnd="30dp"
+                    android:background="@color/colorDivider"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="@id/poem_author"
+                    app:layout_constraintTop_toBottomOf="@id/poem_content" />
+
+                <TextView
+                    android:id="@+id/poem_info"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:gravity="end"
+                    android:textSize="12sp"
+                    app:layout_constraintEnd_toEndOf="@id/poem_content_divider"
+                    app:layout_constraintStart_toStartOf="@id/poem_content_divider"
+                    app:layout_constraintTop_toBottomOf="@id/poem_content_divider" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/poem_comment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+    </ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>
