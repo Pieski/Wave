@@ -35,7 +35,9 @@ public class AppManager extends Application {
     public static int UserID;
     public static boolean is_admin = false;
 
-
+    private static String UserPw = null;
+    public static String getUserPw() {return UserPw;}
+    public static void serUserPw(String pw){UserPw = pw;}
 
     public void StartKeepingAlive(){
         KeepAliveThread keepalive = new KeepAliveThread();
@@ -72,7 +74,13 @@ public class AppManager extends Application {
             return is_startup;
         }
 
-        public static void StartUp(Context context) {
+        private static void re_startup(){
+            StartUp(appcontext);
+            AppIO.Login(UserName,getUserPw());
+
+        }
+
+        public static void StartUp(Context context)  {
             try {
                 StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitNetwork().build();
                 StrictMode.setThreadPolicy(policy);
@@ -135,7 +143,9 @@ public class AppManager extends Application {
                 buffer[1023] = c2.v;
                 os.write(buffer, 0, 1024);
             } catch (Exception ex) {
-                Toast.makeText(appcontext, ex.getMessage(), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(appcontext, ex.getMessage(), Toast.LENGTH_SHORT).show();
+                re_startup();
+                SendDat(c1,dat,c2);
             }
         }
 
@@ -153,8 +163,10 @@ public class AppManager extends Application {
 
                 return buffer;
             } catch (Exception ex) {
-                Toast.makeText(appcontext, ex.getMessage(), Toast.LENGTH_SHORT).show();
-                return new byte[1023];
+                //Toast.makeText(appcontext, ex.getMessage(), Toast.LENGTH_SHORT).show();
+                re_startup();
+                return RecvDat();
+                //return new byte[1023];
             }
         }
 
