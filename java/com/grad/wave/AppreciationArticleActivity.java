@@ -88,7 +88,7 @@ public class AppreciationArticleActivity extends AppCompatActivity {
                         }
                     });
 
-                    if (AppManager.is_admin) {
+                    if (AppManager.is_admin || data.info.UserID == AppManager.UserID) {
                         deletebutton.setEnabled(true);
                         deletebutton.setVisibility(View.VISIBLE);
                         deletebutton.setOnClickListener(new View.OnClickListener() {

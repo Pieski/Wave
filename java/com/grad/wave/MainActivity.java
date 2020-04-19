@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -88,8 +89,16 @@ public class MainActivity extends AppCompatActivity {
                 dialog.show();
             }
         });
+
+        //显示每日一句
+        DailyVerseDialog dailyVerseDialog = new DailyVerseDialog(this);
+        dailyVerseDialog.show();
     }
 
+    @Override
+    public void onBackPressed(){
+        return;
+    }
 }
 
 class NavigationAdapter extends FragmentPagerAdapter {
@@ -159,6 +168,47 @@ class NewArticleTypeDialog extends Dialog {
                 cancel();
             }
         });
+        DisplayMetrics metric = new DisplayMetrics();
+        this.getWindow().getWindowManager().getDefaultDisplay().getMetrics(metric);
+        final WindowManager.LayoutParams params = getWindow().getAttributes();
+        params.width = metric.widthPixels;
+        getWindow().setAttributes(params);
+    }
+}
+
+class DailyVerseDialog extends Dialog{
+
+    TextView contentView;
+    TextView authorView;
+    TextView sourceView;
+    Button confirmButton;
+
+    public DailyVerseDialog(Context context){
+        super(context);
+    }
+
+    @Override
+    public void onCreate(Bundle bundle){
+        super.onCreate(bundle);
+        setContentView(R.layout.dialog_daily_verse);
+        setCanceledOnTouchOutside(false);
+        contentView = findViewById(R.id.daily_verse_content);
+        authorView = findViewById(R.id.daily_verse_author);
+        sourceView = findViewById(R.id.daily_verse_source);
+        confirmButton = findViewById(R.id.daily_verse_confirm);
+
+        confirmButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cancel();
+            }
+        });
+
+        NetPoem verse = AppManager.AppIO.GetDailyVerse();
+        contentView.setText(verse.verse);
+        authorView.setText(verse.author);
+        sourceView.setText(verse.title);
+
         DisplayMetrics metric = new DisplayMetrics();
         this.getWindow().getWindowManager().getDefaultDisplay().getMetrics(metric);
         final WindowManager.LayoutParams params = getWindow().getAttributes();

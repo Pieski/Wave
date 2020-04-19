@@ -24,8 +24,10 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,7 +39,7 @@ public class AppManager extends Application {
 
     private static String UserPw = null;
     public static String getUserPw() {return UserPw;}
-    public static void serUserPw(String pw){UserPw = pw;}
+    public static void setUserPw(String pw){UserPw = pw;}
 
     public void StartKeepingAlive(){
         KeepAliveThread keepalive = new KeepAliveThread();
@@ -480,6 +482,7 @@ public class AppManager extends Application {
                 if (result[0] == C1.LOGSUCS.v) {
                     AppManager.UserName = username;
                     AppManager.UserID = ByteToInt(result, 1, 4);
+                    setUserPw(pw);
                     taskRunning = false;
                     return true;
                 }
@@ -607,7 +610,7 @@ public class AppManager extends Application {
 
         public static boolean RequestFlyingOrder(){
             taskRunning = true;
-            NetIO.SendCmd(C1.ASKFO);
+            NetIO.SendCmd(C1.REQFO);
             byte[] result = NetIO.XRecvDat(5);
             if(result[0] == C1.DATSUCS.v){
                 taskRunning = false;
@@ -615,6 +618,30 @@ public class AppManager extends Application {
             }
             taskRunning = false;
             return false;
+        }
+
+        public static NetPoem GetDailyVerse(){
+            taskRunning = true;
+            try{
+                int dayofyear = Integer.parseInt(new SimpleDateFormat("DDD").format(new Date()));
+                byte[] req = intToBytes(dayofyear);
+                NetIO.SendDat(C1.REQDV,req,C2.STOP);
+
+                byte[] dat = NetIO.XRecvDat(5);
+                while(dat[0] != C1.DV.v && dat[0] != C1.REJ.v)
+                    dat = NetIO.XRecvDat(5);
+                if(dat[0] == C1.REJ.v)
+                    throw new Exception();
+                String author = new String(dat,1,100);
+                String source = new String(dat,101,100);
+                String content = new String(dat,201,821);
+                NetPoem verse = new NetPoem(content,source,author);
+                taskRunning = false;
+                return verse;
+            }catch (Exception ex){
+                taskRunning = false;
+                return new NetPoem("我感觉\n没有今天的\n每日一句","《错误》","勤恳的每日一句机器");
+            }
         }
 
         //短式获取
@@ -901,8 +928,9 @@ public class AppManager extends Application {
         GTSTAT((byte) 111),
         STAT((byte) 112),
         SETSTAT((byte) 113),
-        ASKFO((byte)114),
-        FO((byte)115),
+        REQFO((byte)114),
+        REQDV((byte)115),
+        DV((byte)116),
         PWFAIL((byte) 200),
         USFAIL((byte) 201),
         REGSUCS((byte) 202),

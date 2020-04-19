@@ -1,6 +1,8 @@
 package com.grad.wave;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,7 +42,27 @@ public class FragmentSelected extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle saveInstanceState){
-        data = AppManager.AppIO.GetList(0,0,PageSize);
+        //设置异步刷新
+        Handler getListHandler = new Handler(){
+            @Override
+            public void handleMessage(Message msg){
+                Bundle msgdat = msg.getData();
+                data = (ArrayList<ArticleInfo>)msgdat.get("list");
+                PageBottom = data.size() - 1;
+                ArticleInfoAdapter adapter = (ArticleInfoAdapter) rv.getAdapter();
+                adapter.UpdateData(data);
+                adapter.notifyDataSetChanged();
+                PageBottom = data.size() - 1;
+                if (data.size() >= 6)
+                    allloaded.setVisibility(View.INVISIBLE);
+                else
+                    allloaded.setVisibility(View.VISIBLE);
+                refresh.setRefreshing(false);
+            }
+        };
+        FragmentGetListThread thread = new FragmentGetListThread(0,0,PageSize,getListHandler);
+        thread.start();
+
         PageBottom = data.size()-1;
         //把分段页面从XML文件载入到container中
         view = inflater.inflate(R.layout.selected_fragment,container,false);
@@ -58,18 +80,29 @@ public class FragmentSelected extends Fragment {
             @Override
             public void onRefresh() {
                 try {
-                    Toast.makeText(getContext(), "刷新", Toast.LENGTH_SHORT).show();
-                    data = AppManager.AppIO.GetList(0, 0, PageSize);
-                    PageBottom = data.size() - 1;
-                    ArticleInfoAdapter adapter = (ArticleInfoAdapter) rv.getAdapter();
-                    adapter.UpdateData(data);
-                    adapter.notifyDataSetChanged();
-                    PageBottom = data.size() - 1;
-                    if (data.size() >= 6)
-                        allloaded.setVisibility(View.INVISIBLE);
-                    else
-                        allloaded.setVisibility(View.VISIBLE);
-                    refresh.setRefreshing(false);
+                    Toast.makeText(getContext(), "刷新完毕", Toast.LENGTH_SHORT).show();
+
+                    //data = AppManager.AppIO.GetList(0, 0, PageSize);
+                    //设置异步刷新
+                    Handler getListHandler = new Handler(){
+                        @Override
+                        public void handleMessage(Message msg){
+                            Bundle msgdat = msg.getData();
+                            data = (ArrayList<ArticleInfo>)msgdat.get("list");
+                            PageBottom = data.size() - 1;
+                            ArticleInfoAdapter adapter = (ArticleInfoAdapter) rv.getAdapter();
+                            adapter.UpdateData(data);
+                            adapter.notifyDataSetChanged();
+                            PageBottom = data.size() - 1;
+                            if (data.size() >= 6)
+                                allloaded.setVisibility(View.INVISIBLE);
+                            else
+                                allloaded.setVisibility(View.VISIBLE);
+                            refresh.setRefreshing(false);
+                        }
+                    };
+                    FragmentGetListThread thread = new FragmentGetListThread(0,0,PageSize,getListHandler);
+                    thread.start();
                 }catch(Exception ex){
                     Toast.makeText(getContext(),"暂无数据",Toast.LENGTH_SHORT).show();
                 }
@@ -86,17 +119,28 @@ public class FragmentSelected extends Fragment {
                     if (newState == RecyclerView.SCROLL_STATE_IDLE
                             && lastvisible == data.size() - 1 && swiping_up) {
                         swiping_up = false;
-                        ArticleInfoAdapter adapter = (ArticleInfoAdapter) rv.getAdapter();
-                        ArrayList<ArticleInfo> addition = AppManager.AppIO.GetList(0, PageBottom + 1, PageSize);
-                        for (int i = 0; i < addition.size(); ++i)
-                            data.add(addition.get(i));
-                        adapter.UpdateData(data);
-                        adapter.notifyDataSetChanged();
-                        PageBottom = data.size()-1;
-                        if(data.size() >= 6)
-                            allloaded.setVisibility(View.INVISIBLE);
-                        else
-                            allloaded.setVisibility(View.VISIBLE);
+                        final ArticleInfoAdapter adapter = (ArticleInfoAdapter) rv.getAdapter();
+
+                        //ArrayList<ArticleInfo> addition = AppManager.AppIO.GetList(0, PageBottom + 1, PageSize);
+                        //设置异步刷新
+                        Handler getListHandler = new Handler(){
+                            @Override
+                            public void handleMessage(Message msg){
+                                Bundle msgdat = msg.getData();
+                                ArrayList<ArticleInfo> addition = (ArrayList<ArticleInfo>)msgdat.get("list");
+                                for (int i = 0; i < addition.size(); ++i)
+                                    data.add(addition.get(i));
+                                adapter.UpdateData(data);
+                                adapter.notifyDataSetChanged();
+                                PageBottom = data.size()-1;
+                                if(data.size() >= 6)
+                                    allloaded.setVisibility(View.INVISIBLE);
+                                else
+                                    allloaded.setVisibility(View.VISIBLE);
+                            }
+                        };
+                        FragmentGetListThread thread = new FragmentGetListThread(0,PageBottom+1,PageSize,getListHandler);
+                        thread.start();
                     }
                 }catch(Exception ex){
                     Toast.makeText(getContext(),ex.getMessage(),Toast.LENGTH_SHORT).show();
@@ -113,7 +157,6 @@ public class FragmentSelected extends Fragment {
                 lastvisible = ((LinearLayoutManager)recyclerView.getLayoutManager()).findLastVisibleItemPosition();
             }
         });
-
 
         return view;
     }
