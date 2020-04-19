@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="350dp"
+    android:background="@drawable/dialog_round">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:textColor="@color/colorMidShallowGrey"
+        android:textSize="80sp"
+        android:text="每日一句"/>
+
+    <View
+        android:id="@+id/daily_verse_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorShallowGrey"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="25dp"
+        android:layout_marginEnd="25dp"
+        android:layout_marginBottom="100dp"/>
+
+    <View
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="5dp"
+        app:layout_constraintTop_toTopOf="@id/daily_verse_background"
+        app:layout_constraintStart_toStartOf="@id/daily_verse_background"
+        android:background="@drawable/corner_left_top"/>
+
+    <View
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="5dp"
+        app:layout_constraintBottom_toBottomOf="@id/daily_verse_background"
+        app:layout_constraintEnd_toEndOf="@id/daily_verse_background"
+        android:background="@drawable/corner_right_bottom"/>
+
+    <TextView
+        android:id="@+id/daily_verse_content"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintStart_toStartOf="@id/daily_verse_background"
+        app:layout_constraintEnd_toEndOf="@id/daily_verse_background"
+        app:layout_constraintTop_toTopOf="@id/daily_verse_background"
+        app:layout_constraintBottom_toBottomOf="@id/daily_verse_background"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:layout_marginStart="25dp"
+        android:layout_marginEnd="25dp"
+        android:textSize="25sp"
+        android:gravity="center"
+        android:lineSpacingExtra="8dp"
+        android:text="批判的武器\n当然不能代替\n武器的批判"/>
+
+    <TextView
+        android:id="@+id/daily_verse_author"
+        android:layout_width="wrap_content"
+        android:layout_height="20dp"
+        app:layout_constraintTop_toBottomOf="@id/daily_verse_background"
+        app:layout_constraintEnd_toEndOf="@id/daily_verse_background"
+        android:textSize="15sp"
+        android:text="卡尔·马克思"/>
+
+    <TextView
+        android:id="@+id/daily_verse_source"
+        android:layout_width="wrap_content"
+        android:layout_height="20dp"
+        app:layout_constraintTop_toBottomOf="@id/daily_verse_background"
+        app:layout_constraintStart_toStartOf="@id/daily_verse_background"
+        android:textSize="15sp"
+        android:text="《导言》"/>
+
+    <Button
+        android:id="@+id/daily_verse_confirm"
+        android:layout_width="150dp"
+        android:layout_height="30dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/daily_verse_author"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="20dp"
+        android:backgroundTint="@color/colorBlue"
+        android:background="@drawable/dialog_round"
+        android:textColor="@color/colorWhite"
+        android:alpha="0.8"
+        android:text="进入"/>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

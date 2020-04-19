@@ -18,7 +18,7 @@
     <string name="offline_declare">连接服务器失败，不如挑战下飞花令压压惊？</string>
     <string name="identify">请填写东校区正门所在街道名</string>
     <string name="identify_answer">深中街</string>
-    <string name="app_info">powered by 活鱼格勒2020</string>
+    <string name="app_info">v2.18a powered by 活鱼格勒2020</string>
     <string name="loading_hint">加载中</string>
     <string name="loading_more">正在加载更多</string>
     <string name="create_button">新</string>

@@ -7,7 +7,7 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:windowActivityTransitions">true</item>
-        <item name="android:fontFamily">@font/ming</item>
+        <item name="android:fontFamily">@font/font_jiansong</item>
     </style>
 
     <style name="ActivityTransition" parent="@android:style/Animation.Activity">
