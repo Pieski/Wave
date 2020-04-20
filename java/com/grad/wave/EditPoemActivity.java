@@ -47,6 +47,11 @@ public class EditPoemActivity extends AppCompatActivity {
         radio_original = typeview.getBackground();
         content_original = contentview.getBackground();
 
+        if(AppManager.is_traChinese)
+            this.setTheme(R.style.TraTheme);
+        else
+            this.setTheme(R.style.SimTheme);
+
         overbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -67,6 +67,11 @@ public class PoemArticleActivity extends AppCompatActivity {
 
         content.setText(data.content);
 
+        if(AppManager.is_traChinese)
+            this.setTheme(R.style.TraTheme);
+        else
+            this.setTheme(R.style.SimTheme);
+
         //评论下载完成后触发
         dlCompleteHandler = new Handler(){
             @Override

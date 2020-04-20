@@ -7,15 +7,24 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import android.app.Application;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.text.method.MovementMethod;
+import android.text.method.ScrollingMovementMethod;
 import android.util.DisplayMetrics;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,6 +45,11 @@ public class MainActivity extends AppCompatActivity {
         viewpager.setOffscreenPageLimit(2);
         final BottomNavigationView navigation = this.findViewById(R.id.navi_view);
         final Button newarticle = this.findViewById(R.id.new_article_button);
+
+        if(AppManager.is_traChinese)
+            this.setTheme(R.style.TraTheme);
+        else
+            this.setTheme(R.style.SimTheme);
 
         //向导航适配器添加版块片段并设置导航适配器
         NavigationAdapter naviadapter = new NavigationAdapter(getSupportFragmentManager());
@@ -90,9 +104,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
         //显示每日一句
         DailyVerseDialog dailyVerseDialog = new DailyVerseDialog(this);
         dailyVerseDialog.show();
+
+        //显示教程，使其覆盖每日一句
+        SharedPreferences preferences = getSharedPreferences("is_tutorial_finished",0);
+        if(!preferences.getBoolean("is_tutorial_finished",true)){
+            TutorialDialog dialog = new TutorialDialog(this);
+            dialog.show();
+        }
     }
 
     @Override
@@ -206,6 +228,7 @@ class DailyVerseDialog extends Dialog{
 
         NetPoem verse = AppManager.AppIO.GetDailyVerse();
         contentView.setText(verse.verse);
+        contentView.setMovementMethod(ScrollingMovementMethod.getInstance());
         authorView.setText(verse.author);
         sourceView.setText(verse.title);
 
@@ -214,5 +237,66 @@ class DailyVerseDialog extends Dialog{
         final WindowManager.LayoutParams params = getWindow().getAttributes();
         params.width = metric.widthPixels;
         getWindow().setAttributes(params);
+    }
+}
+
+class TutorialDialog extends Dialog{
+
+    private Button buttonNext;
+    private Button buttonLast;
+    private Button buttonFinish;
+    private ImageView contentImage;
+
+    private int index = 0;
+    private int length = 0;
+
+    public TutorialDialog(Context context){
+        super(context);
+        length = context.getResources().getInteger(R.integer.tutorial_length);
+
+    }
+
+    @Override
+    public void onCreate(Bundle bundle){
+        buttonNext = findViewById(R.id.tutorial_next);
+        buttonLast = findViewById(R.id.tutorial_last);
+        contentImage = findViewById(R.id.tutorial_image);
+        buttonFinish = findViewById(R.id.tutorial_finish);
+
+        buttonNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(index < length-1)
+                    index++;
+                changeImage(index);
+            }
+        });
+
+        buttonLast.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(index > 0)
+                    index--;
+                changeImage(index);
+            }
+        });
+
+        buttonFinish.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cancel();
+            }
+        });
+
+        DisplayMetrics metric = new DisplayMetrics();
+        this.getWindow().getWindowManager().getDefaultDisplay().getMetrics(metric);
+        final WindowManager.LayoutParams params = getWindow().getAttributes();
+        params.width = metric.widthPixels;
+        getWindow().setAttributes(params);
+    }
+
+    private void changeImage(int i){
+        Bitmap image = BitmapFactory.decodeStream(getClass().getResourceAsStream("/res/drawable/tutorial/"+i+".jpg"));
+        contentImage.setBackground(new BitmapDrawable(image));
     }
 }

@@ -53,6 +53,11 @@ public class FlyingOrderActivity extends AppCompatActivity {
         applyButton = findViewById(R.id.flying_apply);
         loadingView = findViewById(R.id.flying_loading);
 
+        if(AppManager.is_traChinese)
+            this.setTheme(R.style.TraTheme);
+        else
+            this.setTheme(R.style.SimTheme);
+
         db_handler = new Handler(){
             @Override
             public void handleMessage(Message msg){

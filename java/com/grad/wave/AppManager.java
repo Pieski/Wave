@@ -2,6 +2,8 @@ package com.grad.wave;
 
 import android.app.Application;
 import android.content.Context;
+import android.graphics.Paint;
+import android.graphics.fonts.Font;
 import android.icu.util.Output;
 import android.media.ResourceBusyException;
 import android.os.StrictMode;
@@ -36,6 +38,8 @@ public class AppManager extends Application {
     public static String UserName;
     public static int UserID;
     public static boolean is_admin = false;
+
+    public static boolean is_traChinese = false;
 
     private static String UserPw = null;
     public static String getUserPw() {return UserPw;}
@@ -79,7 +83,6 @@ public class AppManager extends Application {
         private static void re_startup(){
             StartUp(appcontext);
             AppIO.Login(UserName,getUserPw());
-
         }
 
         public static void StartUp(Context context)  {
@@ -89,11 +92,13 @@ public class AppManager extends Application {
                 appcontext = context;
                 InetAddress servaddr = InetAddress.getByName("106.52.253.223");
                 serv_socket = new Socket();
-                serv_socket.connect(new InetSocketAddress(servaddr.getHostAddress(), 1080), 10000);
+                serv_socket.connect(new InetSocketAddress(servaddr.getHostAddress(), 26535), 10000);
                 while (!serv_socket.isConnected()) ;
                 is_startup = true;
                 is = serv_socket.getInputStream();
                 os = serv_socket.getOutputStream();
+
+
 
             } catch (Exception ex) {
                 is_contconnect = true;
@@ -632,9 +637,9 @@ public class AppManager extends Application {
                     dat = NetIO.XRecvDat(5);
                 if(dat[0] == C1.REJ.v)
                     throw new Exception();
-                String author = new String(dat,1,100);
-                String source = new String(dat,101,100);
-                String content = new String(dat,201,821);
+                String content = new String(dat,1,821);
+                String author = new String(dat,822,100);
+                String source = new String(dat,922,100);
                 NetPoem verse = new NetPoem(content,source,author);
                 taskRunning = false;
                 return verse;

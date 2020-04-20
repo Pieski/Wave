@@ -37,7 +37,13 @@ public class FragmentDiscovery extends Fragment {
     }
 
     public FragmentDiscovery(){
-        data.add(new DiscoveryItem("设","设置",null));
+        data.add(new DiscoveryItem("设", "设置", new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getContext(),SettingActivity.class);
+                startActivity(intent);
+            }
+        }));
         data.add(new DiscoveryItem("花", "飞花令", new OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -44,6 +44,11 @@ public class ServerSettingActivity extends AppCompatActivity {
         ApplyButton = findViewById(R.id.server_setting_apply);
         AdminPassword = findViewById(R.id.server_setting_password);
 
+        if(AppManager.is_traChinese)
+            this.setTheme(R.style.TraTheme);
+        else
+            this.setTheme(R.style.SimTheme);
+
         ApplyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -53,6 +53,12 @@ public class AppreciationArticleActivity extends AppCompatActivity {
             if (data == null) {
                 finish();
             }
+
+            if(AppManager.is_traChinese)
+                this.setTheme(R.style.TraTheme);
+            else
+                this.setTheme(R.style.SimTheme);
+
             //data.comments = AppManager.AppIO.GetComments(info.ID, info.BlockID);
 
             title = findViewById(R.id.appreciation_title);

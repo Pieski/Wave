@@ -40,6 +40,15 @@ public class LoginActivity extends AppCompatActivity {
         username = this.findViewById(R.id.login_username);
         password = this.findViewById(R.id.login_password);
         remember = this.findViewById(R.id.login_save_password);
+
+        //读取简繁设置
+        SharedPreferences preferences = getSharedPreferences("chinese_type", Context.MODE_PRIVATE);
+        AppManager.is_traChinese = preferences.getBoolean("is_traditional",false);
+        if(AppManager.is_traChinese)
+            this.setTheme(R.style.TraTheme);
+        else
+            this.setTheme(R.style.SimTheme);
+
         if (!AppManager.NetIO.is_contconnect) {
 
             //读取保存的密码

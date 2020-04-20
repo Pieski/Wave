@@ -15,6 +15,7 @@ public class RegistActivity extends AppCompatActivity {
     private EditText password;
     private EditText passwordconfirm;
     private EditText identify;
+    private EditText identify2;
     private Button confirm;
 
     @Override
@@ -25,7 +26,14 @@ public class RegistActivity extends AppCompatActivity {
         password = findViewById(R.id.reg_password);
         passwordconfirm = findViewById(R.id.reg_confirm_password);
         identify = findViewById(R.id.reg_identify);
+        identify2 = findViewById(R.id.reg_identify_2);
         confirm = findViewById(R.id.reg_confirm_button);
+
+        if(AppManager.is_traChinese)
+            this.setTheme(R.style.TraTheme);
+        else
+            this.setTheme(R.style.SimTheme);
+
         confirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -37,6 +45,10 @@ public class RegistActivity extends AppCompatActivity {
                 }
                 if(!identify.getText().toString().equals(getString(R.string.identify_answer))){
                     Toast.makeText(getApplicationContext(),"并不是"+identify.getText().toString() , Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if(Integer.parseInt(identify2.getText().toString()) != 2018530501){
+                    Toast.makeText(getApplicationContext(),"并不是"+identify2.getText().toString() , Toast.LENGTH_SHORT).show();
                     return;
                 }
                 confirm.setEnabled(false);

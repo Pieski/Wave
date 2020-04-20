@@ -39,6 +39,11 @@ public class EditAppreciationActivity extends AppCompatActivity {
         edit_original = titleview.getBackground();
         content_original = contentview.getBackground();
 
+        if(AppManager.is_traChinese)
+            this.setTheme(R.style.TraTheme);
+        else
+            this.setTheme(R.style.SimTheme);
+
         overbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
