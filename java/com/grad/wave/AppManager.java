@@ -42,20 +42,27 @@ public class AppManager extends Application {
     public static boolean is_traChinese = false;
 
     private static String UserPw = null;
-    public static String getUserPw() {return UserPw;}
-    public static void setUserPw(String pw){UserPw = pw;}
 
-    public void StartKeepingAlive(){
+    public static String getUserPw() {
+        return UserPw;
+    }
+
+    public static void setUserPw(String pw) {
+        UserPw = pw;
+    }
+
+    public void StartKeepingAlive() {
         KeepAliveThread keepalive = new KeepAliveThread();
         keepalive.start();
     }
 
     class KeepAliveThread extends Thread {
 
-        public KeepAliveThread(){}
+        public KeepAliveThread() {
+        }
 
         public void run() {
-            while(true) {
+            while (true) {
                 try {
                     sleep(10000);
                     if (!AppIO.taskRunning)
@@ -80,12 +87,12 @@ public class AppManager extends Application {
             return is_startup;
         }
 
-        private static void re_startup(){
+        private static void re_startup() {
             StartUp(appcontext);
-            AppIO.Login(UserName,getUserPw());
+            AppIO.Login(UserName, getUserPw());
         }
 
-        public static void StartUp(Context context)  {
+        public static void StartUp(Context context) {
             try {
                 StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitNetwork().build();
                 StrictMode.setThreadPolicy(policy);
@@ -97,7 +104,6 @@ public class AppManager extends Application {
                 is_startup = true;
                 is = serv_socket.getInputStream();
                 os = serv_socket.getOutputStream();
-
 
 
             } catch (Exception ex) {
@@ -152,7 +158,7 @@ public class AppManager extends Application {
             } catch (Exception ex) {
                 //Toast.makeText(appcontext, ex.getMessage(), Toast.LENGTH_SHORT).show();
                 re_startup();
-                SendDat(c1,dat,c2);
+                SendDat(c1, dat, c2);
             }
         }
 
@@ -220,6 +226,7 @@ public class AppManager extends Application {
         public static boolean taskRunning = false;
 
         public static ArrayList<ArticleInfo> GetList(int blockID, int offset, int size) {
+
             taskRunning = true;
             try {
                 if (!NetIO.check_startup()) return null;
@@ -234,39 +241,122 @@ public class AppManager extends Application {
                 NetIO.SendDat(C1.GLIST, dat, C2.STOP);
 
                 byte[] buffer = NetIO.XRecvDat(5);
-                if(buffer[0] == C1.REJ.v)
+                if (buffer[0] == C1.REJ.v)
                     throw new Exception("服务器拒绝了请求");
                 while (buffer[0] == C1.ARTINI.v || buffer[0] == C1.BNULL.v) {
-                    if (buffer[0] == C1.BNULL.v){
+                    if (buffer[0] == C1.BNULL.v) {
                         taskRunning = false;
                         return list;
                     }
 
-                    int code = ByteToInt(buffer, 1, 4);
-                    byte bcode = buffer[5];
-                    int time = ByteToInt(buffer, 6, 4);
-                    String title = new String(buffer, 10, 256);
-                    String author = new String(buffer, 266, 256);
-                    String uploader = new String(buffer, 522, 256);
-                    int length = ByteToInt(buffer, 778, 4);
-                    ArticleType type = ArticleType.Unknown;
-                    switch (buffer[782]) {
-                        case 0:
-                            type = ArticleType.ModernChinese;
+                    //遍历包中的三个ini
+                    for (int i = 0; i < 3; ++i) {
+                        int code = ByteToInt(buffer, 1 + 340 * i, 4);
+                        //如果code为0，则包中的这个ini为空
+                        if (code == 0)
                             break;
-                        case 1:
-                            type = ArticleType.ClassicChinese;
-                            break;
-                        case 2:
-                            type = ArticleType.Foreign;
-                            break;
-                        case 3:
-                            type = ArticleType.Appreciation;
-                            break;
+                        byte bcode = buffer[5 + 340 * i];
+                        int time = ByteToInt(buffer, 6 + 340 * i, 4);
+                        String title = new String(buffer, 10 + 340 * i, 100);
+                        String author = new String(buffer, 110 + 340 * i, 100);
+                        String uploader = new String(buffer, 210 + 340 * i, 100);
+                        int length = ByteToInt(buffer, 310 + 340 * i, 4);
+                        ArticleType type = ArticleType.Unknown;
+                        switch (buffer[314 + 340 * i]) {
+                            case 0:
+                                type = ArticleType.ModernChinese;
+                                break;
+                            case 1:
+                                type = ArticleType.ClassicChinese;
+                                break;
+                            case 2:
+                                type = ArticleType.Foreign;
+                                break;
+                            case 3:
+                                type = ArticleType.Appreciation;
+                                break;
+                        }
+                        short repcout = ByteToShort(buffer, 315 + 340 * i, 2);
+                        int userid = ByteToInt(buffer, 317 + 340 * i, 4);
+                        byte ori = buffer[321 + 340 * i];
+                        int like = ByteToInt(buffer, 322 + 340 * i, 4);
+                        byte isliked = buffer[326 + 340 * i];
+                        list.add(new ArticleInfo(code, bcode, time, title, author, uploader, length, type, repcout, userid, ori, like, isliked));
                     }
-                    short repcout = ByteToShort(buffer, 783, 2);
-                    int userid = ByteToInt(buffer, 785, 4);
-                    list.add(new ArticleInfo(code, bcode, time, title, author, uploader, length, type, repcout, userid));
+                    //接收下个包
+                    if (buffer[1022] == C2.STOP.v) {
+                        taskRunning = false;
+                        return list;
+                    }
+                    buffer = NetIO.XRecvDat(5);
+                }
+                return list;
+            } catch (Exception ex) {
+                Toast.makeText(NetIO.appcontext, ex.getMessage(), Toast.LENGTH_SHORT).show();
+                taskRunning = false;
+                return new ArrayList<ArticleInfo>();
+            }
+        }
+
+        public static ArrayList<ArticleInfo> GetMineList(int blockID, int offset, int size) {
+
+            taskRunning = true;
+            try {
+                if (!NetIO.check_startup()) return null;
+                ArrayList<ArticleInfo> list = new ArrayList<ArticleInfo>();
+
+                byte[] dat = new byte[9];
+                dat[0] = (byte) blockID;
+                for (int i = 0; i < 4; ++i)
+                    dat[i + 1] = intToBytes(offset)[i];
+                for (int i = 0; i < 4; ++i)
+                    dat[i + 5] = intToBytes(size)[i];
+                NetIO.SendDat(C1.GTMINE, dat, C2.STOP);
+
+                byte[] buffer = NetIO.XRecvDat(5);
+                if (buffer[0] == C1.REJ.v)
+                    throw new Exception("服务器拒绝了请求");
+                while (buffer[0] == C1.ARTINI.v || buffer[0] == C1.BNULL.v) {
+                    if (buffer[0] == C1.BNULL.v) {
+                        taskRunning = false;
+                        return list;
+                    }
+
+                    //遍历包中的三个ini
+                    for (int i = 0; i < 3; ++i) {
+                        int code = ByteToInt(buffer, 1 + 340 * i, 4);
+                        //如果code为0，则包中的这个ini为空
+                        if (code == 0)
+                            break;
+                        byte bcode = buffer[5 + 340 * i];
+                        int time = ByteToInt(buffer, 6 + 340 * i, 4);
+                        String title = new String(buffer, 10 + 340 * i, 100);
+                        String author = new String(buffer, 110 + 340 * i, 100);
+                        String uploader = new String(buffer, 210 + 340 * i, 100);
+                        int length = ByteToInt(buffer, 310 + 340 * i, 4);
+                        ArticleType type = ArticleType.Unknown;
+                        switch (buffer[314 + 340 * i]) {
+                            case 0:
+                                type = ArticleType.ModernChinese;
+                                break;
+                            case 1:
+                                type = ArticleType.ClassicChinese;
+                                break;
+                            case 2:
+                                type = ArticleType.Foreign;
+                                break;
+                            case 3:
+                                type = ArticleType.Appreciation;
+                                break;
+                        }
+                        short repcout = ByteToShort(buffer, 315 + 340 * i, 2);
+                        int userid = ByteToInt(buffer, 317 + 340 * i, 4);
+                        byte ori = buffer[321 + 340 * i];
+                        int like = ByteToInt(buffer, 322 + 340 * i, 4);
+                        byte isliked = buffer[326 + 340 * i];
+                        list.add(new ArticleInfo(code, bcode, time, title, author, uploader, length, type, repcout, userid, ori, like, isliked));
+                    }
+                    //接收下个包
                     if (buffer[1022] == C2.STOP.v) {
                         taskRunning = false;
                         return list;
@@ -307,8 +397,9 @@ public class AppManager extends Application {
                         break;
                     }
                 }
-                ArticleData data = new ArticleData(info, new String(dat));{
-                    taskRunning=false;
+                ArticleData data = new ArticleData(info, new String(dat));
+                {
+                    taskRunning = false;
                     return data;
                 }
             } catch (Exception ex) {
@@ -324,19 +415,20 @@ public class AppManager extends Application {
             inforeq[4] = data.info.BlockID;
             for (int i = 0; i < 4; ++i)
                 inforeq[i + 5] = intToBytes(data.info.CreatedTimeS)[i];
-            for (int i = 0; i < 256; ++i)
+            for (int i = 0; i < 100; ++i)
                 inforeq[i + 9] = data.info.GetTitleBytes()[i];
-            for (int i = 0; i < 256; ++i)
-                inforeq[i + 265] = data.info.GetAuthorBytes()[i];
-            for (int i = 0; i < 256; ++i)
-                inforeq[i + 521] = data.info.GetUploaderBytes()[i];
+            for (int i = 0; i < 100; ++i)
+                inforeq[i + 109] = data.info.GetAuthorBytes()[i];
+            for (int i = 0; i < 100; ++i)
+                inforeq[i + 209] = data.info.GetUploaderBytes()[i];
             for (int i = 0; i < 4; ++i)
-                inforeq[i + 777] = intToBytes(data.info.Length)[i];
-            inforeq[781] = data.info.Type.getValue();
-            inforeq[782] = ShortToByte(data.info.RepCount)[0];
-            inforeq[783] = ShortToByte(data.info.RepCount)[1];
+                inforeq[i + 309] = intToBytes(data.info.Length)[i];
+            inforeq[313] = data.info.Type.getValue();
+            inforeq[314] = ShortToByte(data.info.RepCount)[0];
+            inforeq[315] = ShortToByte(data.info.RepCount)[1];
             for (int i = 0; i < 4; ++i)
-                inforeq[784 + i] = intToBytes(data.info.UserID)[i];
+                inforeq[316 + i] = intToBytes(data.info.UserID)[i];
+            inforeq[320] = data.info.Ori;
 
             NetIO.SendDat(C1.ARTINI, inforeq, C2.STOP);
 
@@ -373,10 +465,9 @@ public class AppManager extends Application {
                 NetIO.SendDat(C1.DLART, req, C2.STOP);
                 C1[] cmds = {C1.DATSUCS, C1.DATFAIL};
                 if (NetIO.WFCM(cmds) == C1.DATSUCS) {
-                    taskRunning =false;
+                    taskRunning = false;
                     return true;
-                }
-                else
+                } else
                     throw new Exception("删除失败");
             } catch (Exception ex) {
                 Toast.makeText(NetIO.appcontext, ex.getMessage(), Toast.LENGTH_SHORT).show();
@@ -393,7 +484,7 @@ public class AppManager extends Application {
                 for (int i = 0; i < 4; ++i)
                     dat[i] = intToBytes(id)[i];
                 dat[4] = bcode;
-                for (int i = 0; i < 765 && i < commentbytes.length; ++i)
+                for (int i = 0; i < 921 && i < commentbytes.length; ++i)
                     dat[i + 5] = commentbytes[i];
                 NetIO.SendDat(C1.COMTUP, dat, C2.STOP);
 
@@ -411,17 +502,17 @@ public class AppManager extends Application {
             }
         }
 
-        public static ArrayList<CommentData> GetComments(int id, byte bcode,int offset,int size) {
+        public static ArrayList<CommentData> GetComments(int id, byte bcode, int offset, int size) {
             taskRunning = true;
             try {
                 byte[] req = new byte[13];
                 for (int i = 0; i < 4; ++i)
                     req[i] = intToBytes(id)[i];
                 req[4] = bcode;
-                for(int i=0;i<4;++i)
-                    req[i+5] = intToBytes(offset)[i];
-                for(int i=0;i<4;++i)
-                    req[i+9] = intToBytes(size)[i];
+                for (int i = 0; i < 4; ++i)
+                    req[i + 5] = intToBytes(offset)[i];
+                for (int i = 0; i < 4; ++i)
+                    req[i + 9] = intToBytes(size)[i];
                 NetIO.SendDat(C1.GTCMT, req, C2.STOP);
 
                 ArrayList<CommentData> list = new ArrayList<>();
@@ -430,18 +521,11 @@ public class AppManager extends Application {
                     cmt = NetIO.XRecvDat(5);
                 if (cmt[0] == C1.BNULL.v)
                     throw new Exception("暂无评论");
-                else if(cmt[0] == C1.REJ.v)
+                else if (cmt[0] == C1.REJ.v)
                     throw new Exception("服务器拒绝了请求");
                 while (cmt[1022] != C2.STOP.v) {
-                    /*
-                    byte[] makerbytes = new byte[256];
-                    byte[] commentbytes = new byte[765];
-                    for(int i=0;i<256;++i)
-                        makerbytes[i] = cmt[i+1];
-                    for(int i=0;i<765;++i)
-                        commentbytes[i] = cmt[i+256];*/
-                    String maker = new String(cmt, 1, 256);
-                    String comment = new String(cmt, 257, 765);
+                    String maker = new String(cmt, 1, 100);
+                    String comment = new String(cmt, 101, 921);
                     list.add(0, new CommentData(maker, comment));
                     cmt[0] = 0;
                     cmt = NetIO.XRecvDat(5);
@@ -452,14 +536,8 @@ public class AppManager extends Application {
                         return list;
                     }
                 }
-                byte[] makerbytes = new byte[256];
-                byte[] commentbytes = new byte[765];
-                for (int i = 0; i < 256; ++i)
-                    makerbytes[i] = cmt[i + 1];
-                for (int i = 0; i < 765; ++i)
-                    commentbytes[i] = cmt[i + 256];
-                String maker = new String(makerbytes);
-                String comment = new String(commentbytes);
+                String maker = new String(cmt, 1, 100);
+                String comment = new String(cmt, 101, 921);
                 list.add(0, new CommentData(maker, comment));
                 taskRunning = false;
                 return list;
@@ -476,10 +554,10 @@ public class AppManager extends Application {
                 if (!NetIO.check_startup())
                     return false;
                 byte[] dat = new byte[1021];
-                for (int i = 0; i < username.getBytes().length && i < 256; ++i)
+                for (int i = 0; i < username.getBytes().length && i < 100; ++i)
                     dat[i] = (byte) username.getBytes()[i];
-                for (int i = 0; i < pw.getBytes().length && i < 256; ++i)
-                    dat[i + 256] = (byte) pw.getBytes()[i];
+                for (int i = 0; i < pw.getBytes().length && i < 100; ++i)
+                    dat[i + 100] = (byte) pw.getBytes()[i];
                 NetIO.SendDat(C1.LOGIN, dat, C2.STOP);
                 byte[] result = NetIO.XRecvDat(5);
                 while (result[0] != C1.LOGSUCS.v && result[0] != C1.PWFAIL.v && result[0] != C1.USFAIL.v && result[0] != C1.REJ.v)
@@ -493,7 +571,7 @@ public class AppManager extends Application {
                 }
                 if (result[0] == C1.PWFAIL.v)
                     throw new Exception("密码错误");
-                else if(result[0] == C1.USFAIL.v)
+                else if (result[0] == C1.USFAIL.v)
                     throw new Exception("用户名错误");
                 else
                     throw new Exception("服务器拒绝了请求");
@@ -508,10 +586,10 @@ public class AppManager extends Application {
             taskRunning = true;
             try {
                 byte[] dat = new byte[1021];
-                for (int i = 0; i < username.getBytes().length && i < 256; ++i)
+                for (int i = 0; i < username.getBytes().length && i < 100; ++i)
                     dat[i] = (byte) username.getBytes()[i];
-                for (int i = 0; i < pw.getBytes().length && i < 256; ++i)
-                    dat[i + 256] = (byte) pw.getBytes()[i];
+                for (int i = 0; i < pw.getBytes().length && i < 100; ++i)
+                    dat[i + 100] = (byte) pw.getBytes()[i];
                 NetIO.SendDat(C1.REG, dat, C2.STOP);
 
                 dat = NetIO.XRecvDat(5);
@@ -520,13 +598,54 @@ public class AppManager extends Application {
                 if (dat[0] == C1.REGSUCS.v) {
                     taskRunning = false;
                     return true;
-                } else if(dat[0] == C1.USFAIL.v) {
+                } else if (dat[0] == C1.USFAIL.v) {
                     throw new Exception("用户名已存在");
-                }else
+                } else
                     throw new Exception("服务器拒绝了请求");
             } catch (Exception ex) {
                 Toast.makeText(NetIO.appcontext, ex.getMessage(), Toast.LENGTH_SHORT).show();
                 taskRunning = false;
+                return false;
+            }
+        }
+
+        public static boolean Like(int acode, byte bcode) {
+            try {
+                byte[] req = new byte[6];
+                for (int i = 0; i < 4; ++i) {
+                    req[i] = intToBytes(acode)[i];
+                }
+                req[4] = bcode;
+                req[5] = 0;
+                NetIO.SendDat(C1.ADLKE, req, C2.STOP);
+
+                byte[] result = NetIO.XRecvDat(5);
+                if (result[0] == C1.DATFAIL.v) {
+                    return false;
+                } else
+                    return true;
+            } catch (Exception ex) {
+                return false;
+            }
+        }
+
+
+        public static boolean Dislike(int acode, byte bcode) {
+            try {
+                byte[] req = new byte[6];
+                for (int i = 0; i < 4; ++i) {
+                    req[i] = intToBytes(acode)[i];
+                }
+                req[4] = bcode;
+                req[5] = 1;
+                NetIO.SendDat(C1.ADLKE, req, C2.STOP);
+
+                byte[] result = NetIO.XRecvDat(5);
+                if (result[0] == C1.DATFAIL.v) {
+                    return false;
+                } else
+                    return true;
+            } catch (Exception ex) {
                 return false;
             }
         }
@@ -540,7 +659,7 @@ public class AppManager extends Application {
                 for (int i = 0; i < 4; ++i)
                     dat[i + 4] = intToBytes(conf.ConnectedClient)[i];
                 for (int i = 0; i < 4; ++i)
-                    dat[i + 14] = intToBytes(conf.Check())[i];
+                    dat[i + 15] = intToBytes(conf.Check())[i];
                 if (conf.RegPermitted)
                     dat[8] = 1;
                 if (conf.UploadPermitted)
@@ -551,42 +670,44 @@ public class AppManager extends Application {
                     dat[11] = 1;
                 if (conf.LoginPermitted)
                     dat[12] = 1;
-                if(conf.FlyingOrderPermitted)
+                if (conf.FlyingOrderPermitted)
                     dat[13] = 1;
+                if (conf.DailyVerseAnnouncement)
+                    dat[14] = 1;
                 NetIO.SendDat(C1.SETSTAT, dat, C2.STOP);
-                byte[] result = NetIO.XRecvDat(5); 
+                byte[] result = NetIO.XRecvDat(5);
                 while (result[0] != C1.DATSUCS.v && result[0] != C1.REJ.v && result[0] != C1.DATFAIL.v)
                     result = NetIO.XRecvDat(5);
-                if(result[0] == C1.REJ.v)
+                if (result[0] == C1.REJ.v)
                     throw new Exception("服务器拒绝了请求");
-                else if(result[0] == C1.DATFAIL.v)
+                else if (result[0] == C1.DATFAIL.v)
                     throw new Exception("更改失败");
                 taskRunning = false;
                 return true;
-            }catch(Exception ex){
-                Toast.makeText(NetIO.appcontext,ex.getMessage(),Toast.LENGTH_SHORT).show();
+            } catch (Exception ex) {
+                Toast.makeText(NetIO.appcontext, ex.getMessage(), Toast.LENGTH_SHORT).show();
                 taskRunning = false;
                 return false;
             }
         }
 
-        public static ServerConfig RequestServerConfig(){
+        public static ServerConfig RequestServerConfig() {
             taskRunning = true;
             try {
                 ServerConfig conf = new ServerConfig();
                 int errorcount = 0;
                 while (!conf.checkpass) {
-                    if(errorcount >=5)
+                    if (errorcount >= 5)
                         throw new Exception("多次请求服务器状态失败");
                     NetIO.SendCmd(C1.GTSTAT);
                     byte[] result = NetIO.XRecvDat(5);
                     while (result[0] != C1.STAT.v && result[0] != C1.REJ.v)
                         result = NetIO.XRecvDat(5);
-                    if(result[0] == C1.REJ.v)
+                    if (result[0] == C1.REJ.v)
                         throw new Exception("服务器拒绝了请求");
                     int maxclnt = ByteToInt(result, 1, 4);
                     int conclnt = ByteToInt(result, 5, 4);
-                    boolean regper, upper, comper, refper, logper,foper;
+                    boolean regper, upper, comper, refper, logper, foper, annper;
                     if (result[9] == 1) regper = true;
                     else regper = false;
                     if (result[10] == 1) upper = true;
@@ -599,25 +720,27 @@ public class AppManager extends Application {
                     else logper = false;
                     if (result[14] == 1) foper = true;
                     else foper = false;
-                    conf = new ServerConfig(maxclnt, conclnt, regper, upper, comper, refper, logper,foper);
-                        if (conf.Check() == ByteToInt(result, 15, 4))
+                    if (result[15] == 1) annper = true;
+                    else annper = false;
+                    conf = new ServerConfig(maxclnt, conclnt, regper, upper, comper, refper, logper, foper, annper);
+                    if (conf.Check() == ByteToInt(result, 16, 4))
                         conf.checkpass = true;
-                    errorcount ++;
+                    errorcount++;
                 }
                 taskRunning = false;
                 return conf;
-            }catch(Exception ex){
-                Toast.makeText(NetIO.appcontext,ex.getMessage(),Toast.LENGTH_SHORT).show();
-                taskRunning  = false;
+            } catch (Exception ex) {
+                Toast.makeText(NetIO.appcontext, ex.getMessage(), Toast.LENGTH_SHORT).show();
+                taskRunning = false;
                 return null;
             }
         }
 
-        public static boolean RequestFlyingOrder(){
+        public static boolean RequestFlyingOrder() {
             taskRunning = true;
             NetIO.SendCmd(C1.REQFO);
             byte[] result = NetIO.XRecvDat(5);
-            if(result[0] == C1.DATSUCS.v){
+            if (result[0] == C1.DATSUCS.v) {
                 taskRunning = false;
                 return true;
             }
@@ -625,27 +748,46 @@ public class AppManager extends Application {
             return false;
         }
 
-        public static NetPoem GetDailyVerse(){
+        public static NetPoem GetDailyVerse() {
             taskRunning = true;
-            try{
+            try {
                 int dayofyear = Integer.parseInt(new SimpleDateFormat("DDD").format(new Date()));
                 byte[] req = intToBytes(dayofyear);
-                NetIO.SendDat(C1.REQDV,req,C2.STOP);
+                NetIO.SendDat(C1.REQDV, req, C2.STOP);
 
                 byte[] dat = NetIO.XRecvDat(5);
-                while(dat[0] != C1.DV.v && dat[0] != C1.REJ.v)
+                while (dat[0] != C1.DV.v && dat[0] != C1.REJ.v)
                     dat = NetIO.XRecvDat(5);
-                if(dat[0] == C1.REJ.v)
+                if (dat[0] == C1.REJ.v)
                     throw new Exception();
-                String content = new String(dat,1,821);
-                String author = new String(dat,822,100);
-                String source = new String(dat,922,100);
-                NetPoem verse = new NetPoem(content,source,author);
+                String content = new String(dat, 1, 821);
+                String author = new String(dat, 822, 100);
+                String source = new String(dat, 922, 100);
+                NetPoem verse = new NetPoem(content, source, author);
                 taskRunning = false;
                 return verse;
-            }catch (Exception ex){
+            } catch (Exception ex) {
                 taskRunning = false;
-                return new NetPoem("我感觉\n没有今天的\n每日一句","《错误》","勤恳的每日一句机器");
+                return new NetPoem("我感觉\n没有今天的\n每日一句", "《错误》", "勤恳的每日一句机器");
+            }
+        }
+
+        public static boolean SelectArticle(ArticleInfo articleInfo) {
+            try {
+                byte[] req = new byte[5];
+                for (int i = 0; i < 4; ++i)
+                    req[i] = intToBytes(articleInfo.ID)[i];
+                req[4] = articleInfo.BlockID;
+                NetIO.SendDat(C1.MVART, req, C2.STOP);
+
+                byte[] dat = NetIO.XRecvDat(5);
+                while (dat[0] != C1.DATSUCS.v && dat[0] != C1.DATFAIL.v)
+                    dat = NetIO.XRecvDat(5);
+                if (dat[0] == C1.DATFAIL.v)
+                    throw new Exception();
+                return true;
+            } catch (Exception ex) {
+                return false;
             }
         }
 
@@ -653,7 +795,7 @@ public class AppManager extends Application {
         public static ArrayList<NetPoem> GetPoemsShort(char word, int size, int skip) {
             ArrayList<NetPoem> result = new ArrayList<>();
             try {
-                String path = "http://www.shicimingju.com/chaxun/shiju/" + word;
+                String path = "https://www.shicimingju.com/chaxun/shiju/" + word;
                 URL url = new URL(path);
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("GET");
@@ -685,7 +827,7 @@ public class AppManager extends Application {
                         versepath.deleteCharAt(0);
                     versepath.deleteCharAt(versepath.length() - 1);
 
-                    HttpURLConnection verseConnection = (HttpURLConnection) new URL("http://www.shicimingju.com" + versepath.toString()).openConnection();
+                    HttpURLConnection verseConnection = (HttpURLConnection) new URL("https://www.shicimingju.com" + versepath.toString()).openConnection();
                     verseConnection.setRequestMethod("GET");
                     verseConnection.setConnectTimeout(5000);
                     verseConnection.connect();
@@ -699,50 +841,44 @@ public class AppManager extends Application {
                     reader.close();
                     downloadstream.close();
 
-                    Pattern contentPattern = Pattern.compile("<div id=\"item_div\"[\\S\\s]*?<script");
-                    Matcher contentMachter = contentPattern.matcher(subres);
-
-
                     StringBuilder verse = new StringBuilder();
-                    if (contentMachter.find()) {
-                        Pattern poemPattern = Pattern.compile("<div class=\"item_content\"[\\S\\s]*?</div");
-                        Matcher poemMachter = poemPattern.matcher(contentMachter.group());
-                        if (poemMachter.find()) {
-                            StringBuilder t_verse = GetBasicVerse(new StringBuilder(poemMachter.group()),
-                                    Pattern.compile("[>。？！；][\\S\\s]*?" + word + ".*?[。？！；<]"));
-                            char[] verseBytes = new char[t_verse.length()];
-                            t_verse.getChars(0, t_verse.length(), verseBytes, 0);
-                            for (int i = 0; i < verseBytes.length; ++i)
-                                if (String.valueOf(verseBytes[i]).getBytes().length > 1)
-                                    verse.append(verseBytes[i]);
-                        }
-
-                        StringBuilder title = new StringBuilder();
-                        Matcher titleMachter = Pattern.compile("<h1>.*?</h1>").matcher(contentMachter.group());
-                        if (titleMachter.find()) {
-                            char[] titleChars = new char[titleMachter.group().length()];
-                            titleMachter.group().getChars(0, titleMachter.group().length(), titleChars, 0);
-                            for (int i = 0; i < titleChars.length; ++i)
-                                if (String.valueOf(titleChars[i]).getBytes().length > 1)
-                                    title.append(titleChars[i]);
-                        }
-
-                        StringBuilder author = new StringBuilder();
-                        Matcher authorMachter = Pattern.compile("zuozhe\">[\\s\\S]*?</a>").matcher(contentMachter.group());
-                        if (authorMachter.find()) {
-                            char[] authorChars = new char[authorMachter.group().length()];
-                            authorMachter.group().getChars(0, authorMachter.group().length(), authorChars, 0);
-                            for (int i = 0; i < authorChars.length; ++i)
-                                if (String.valueOf(authorChars[i]).getBytes().length > 1 || authorChars[i] == '[' || authorChars[i] == ']')
-                                    author.append(authorChars[i]);
-                        }
-                        result.add(new NetPoem(verse.toString(), title.toString(), author.toString()));
+                    Pattern poemPattern = Pattern.compile("<div class=\"item_content\" id=\"zs_content\">[\\S\\s]*<");
+                    Matcher poemMachter = poemPattern.matcher(subres);
+                    if (poemMachter.find()) {
+                        StringBuilder t_verse = GetBasicVerse(new StringBuilder(poemMachter.group()),
+                                Pattern.compile("[>。？！；][\\S\\s]*?" + word + ".*?[。？！；<]"));
+                        char[] verseBytes = new char[t_verse.length()];
+                        t_verse.getChars(0, t_verse.length(), verseBytes, 0);
+                        for (int i = 0; i < verseBytes.length; ++i)
+                            if (String.valueOf(verseBytes[i]).getBytes().length > 1)
+                                verse.append(verseBytes[i]);
                     }
+
+                    StringBuilder title = new StringBuilder();
+                    Matcher titleMachter = Pattern.compile("<h1 id=\"zs_title\">.*?</h1>").matcher(subres);
+                    if (titleMachter.find()) {
+                        char[] titleChars = new char[titleMachter.group().length()];
+                        titleMachter.group().getChars(0, titleMachter.group().length(), titleChars, 0);
+                        for (int i = 0; i < titleChars.length; ++i)
+                            if (String.valueOf(titleChars[i]).getBytes().length > 1)
+                                title.append(titleChars[i]);
+                    }
+
+                    StringBuilder author = new StringBuilder();
+                    Matcher authorMachter = Pattern.compile("<a href=\"/chaxun/zuozhe/[\\s\\S]*?</a>").matcher(subres);
+                    if (authorMachter.find()) {
+                        char[] authorChars = new char[authorMachter.group().length()];
+                        authorMachter.group().getChars(0, authorMachter.group().length(), authorChars, 0);
+                        for (int i = 0; i < authorChars.length; ++i)
+                            if (String.valueOf(authorChars[i]).getBytes().length > 1 || authorChars[i] == '[' || authorChars[i] == ']')
+                                author.append(authorChars[i]);
+                    }
+                    result.add(new NetPoem(verse.toString(), title.toString(), author.toString()));
                 }
                 Collections.shuffle(result);
                 return result;
             } catch (Exception ex) {
-                Toast.makeText(NetIO.appcontext, "飞花令出错辣" + ex.getMessage(), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(NetIO.appcontext, "飞花令出错辣" + ex.getMessage(), Toast.LENGTH_SHORT).show();
                 return result;
             }
         }
@@ -751,7 +887,7 @@ public class AppManager extends Application {
         public static ArrayList<NetPoem> GetPoems(char word, int page) {
             ArrayList<NetPoem> result = new ArrayList<>();
             try {
-                String path = "http://www.shicimingju.com/chaxun/shiju/nd_0/" + word + "/" + page + "/0";
+                String path = "https://www.shicimingju.com/chaxun/shiju/nd_0/" + word + "/" + page + "/0";
                 URL url = new URL(path);
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("GET");
@@ -769,7 +905,10 @@ public class AppManager extends Application {
 
                 Pattern mainpattern = Pattern.compile("<div class=\"shiju_list_main\">[\\s\\S]*?href=\".*?\"");
                 Matcher mainmatch = mainpattern.matcher(res);
-                while (mainmatch.find()) {
+
+                int count = 0;
+                while (mainmatch.find() && count < 50) {           //限制获取诗词的数量，一页太多了
+                    count++;
                     StringBuilder versepath = new StringBuilder();
                     Pattern pathPattern = Pattern.compile("href=\".*?\"");
                     Matcher pathMathcer = pathPattern.matcher(mainmatch.group());
@@ -779,7 +918,7 @@ public class AppManager extends Application {
                         versepath.deleteCharAt(0);
                     versepath.deleteCharAt(versepath.length() - 1);
 
-                    HttpURLConnection verseConnection = (HttpURLConnection) new URL("http://www.shicimingju.com" + versepath.toString()).openConnection();
+                    HttpURLConnection verseConnection = (HttpURLConnection) new URL("https://www.shicimingju.com" + versepath.toString()).openConnection();
                     verseConnection.setRequestMethod("GET");
                     verseConnection.setConnectTimeout(5000);
                     verseConnection.connect();
@@ -793,14 +932,10 @@ public class AppManager extends Application {
                     reader.close();
                     downloadstream.close();
 
-                    Pattern contentPattern = Pattern.compile("<div id=\"item_div\"[\\S\\s]*?<script");
-                    Matcher contentMachter = contentPattern.matcher(subres);
-
 
                     StringBuilder verse = new StringBuilder();
-                    if (contentMachter.find()) {
-                        Pattern poemPattern = Pattern.compile("<div class=\"item_content\"[\\S\\s]*?</div");
-                        Matcher poemMachter = poemPattern.matcher(contentMachter.group());
+                        Pattern poemPattern = Pattern.compile("<div class=\"item_content\" id=\"zs_content\">[\\S\\s]*<");
+                        Matcher poemMachter = poemPattern.matcher(subres);
                         if (poemMachter.find()) {
                             StringBuilder t_verse = GetBasicVerse(new StringBuilder(poemMachter.group()),
                                     Pattern.compile("[>。？！；][\\S\\s]*?" + word + ".*?[。？！；<]"));
@@ -812,7 +947,7 @@ public class AppManager extends Application {
                         }
 
                         StringBuilder title = new StringBuilder();
-                        Matcher titleMachter = Pattern.compile("<h1>.*?</h1>").matcher(contentMachter.group());
+                        Matcher titleMachter = Pattern.compile("<h1 id=\"zs_title\">.*?</h1>").matcher(subres);
                         if (titleMachter.find()) {
                             char[] titleChars = new char[titleMachter.group().length()];
                             titleMachter.group().getChars(0, titleMachter.group().length(), titleChars, 0);
@@ -822,7 +957,7 @@ public class AppManager extends Application {
                         }
 
                         StringBuilder author = new StringBuilder();
-                        Matcher authorMachter = Pattern.compile("zuozhe\">[\\s\\S]*?</a>").matcher(contentMachter.group());
+                        Matcher authorMachter = Pattern.compile("<a href=\"/chaxun/zuozhe/[\\s\\S]*?</a>").matcher(subres);
                         if (authorMachter.find()) {
                             char[] authorChars = new char[authorMachter.group().length()];
                             authorMachter.group().getChars(0, authorMachter.group().length(), authorChars, 0);
@@ -831,7 +966,6 @@ public class AppManager extends Application {
                                     author.append(authorChars[i]);
                         }
                         result.add(new NetPoem(verse.toString(), title.toString(), author.toString()));
-                    }
                 }
                 Collections.shuffle(result);
                 return result;
@@ -933,9 +1067,12 @@ public class AppManager extends Application {
         GTSTAT((byte) 111),
         STAT((byte) 112),
         SETSTAT((byte) 113),
-        REQFO((byte)114),
-        REQDV((byte)115),
-        DV((byte)116),
+        REQFO((byte) 114),
+        REQDV((byte) 115),
+        DV((byte) 116),
+        MVART((byte) 118),
+        ADLKE((byte) 119),
+        GTMINE((byte) 120),
         PWFAIL((byte) 200),
         USFAIL((byte) 201),
         REGSUCS((byte) 202),

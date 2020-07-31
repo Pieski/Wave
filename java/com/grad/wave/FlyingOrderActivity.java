@@ -216,7 +216,7 @@ public class FlyingOrderActivity extends AppCompatActivity {
             if(is_long)
                 db = AppManager.AppIO.GetPoems(word,page);
             else
-                db = AppManager.AppIO.GetPoemsShort(word,10,(int)(System.currentTimeMillis())%10);
+                db = AppManager.AppIO.GetPoemsShort(word,10,(int)(System.currentTimeMillis()%10));
             Message msg = new Message();
             Bundle bundle = new Bundle();
             bundle.putParcelableArrayList("db",db);
